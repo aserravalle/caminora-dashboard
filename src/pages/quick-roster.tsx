@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { Upload, ArrowLeft } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Upload, ArrowLeft, FileText } from 'lucide-react';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
-import { OperativeRowParser } from '@/lib/operativeRowParser';
+import { OperativeRowParser, type ParsedOperative } from '@/lib/operativeRowParser';
 import { JobRowParser } from '@/lib/jobRowParser';
 import { JobColumnMapper, OperativeColumnMapper } from '@/components/ui/column-mapper';
 
@@ -116,14 +116,12 @@ export function QuickRosterPage() {
     }
   };
 
-  // Get all mapped columns for operatives
   const getOperativeColumns = () => {
     const operativeFile = files.find(f => f.dataType === 'operative');
     if (!operativeFile) return [];
     return Object.entries(operativeFile.columnMapping).map(([key]) => key);
   };
 
-  // Get all mapped columns for jobs
   const getJobColumns = () => {
     const jobFile = files.find(f => f.dataType === 'job');
     if (!jobFile) return [];
@@ -295,7 +293,6 @@ export function QuickRosterPage() {
       </div>
 
       <div className="grid grid-cols-2 gap-6">
-        {/* File Upload Section */}
         <div className="col-span-1 bg-white rounded-lg shadow">
           <div className="p-6">
             {showColumnMapper && currentFileIndex !== null ? (
