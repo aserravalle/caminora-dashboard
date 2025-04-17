@@ -10,6 +10,7 @@ export interface ParsedOperative {
   email?: string | null;
   phone?: string | null;
   location?: string;
+  location_id?: string;
   operative_type?: string;
   default_start_time?: string;
   default_end_time?: string;
@@ -18,12 +19,10 @@ export interface ParsedOperative {
 
 export class OperativeRowParser {
   private columnMapping: ColumnMapping;
-  private organisationId: string;
-  private defaultLocation?: string;
+  private defaultLocation?: { id: string; name: string };
 
-  constructor(columnMapping: ColumnMapping, organisationId: string, defaultLocation?: string) {
+  constructor(columnMapping: ColumnMapping, defaultLocation?: { id: string; name: string }) {
     this.columnMapping = columnMapping;
-    this.organisationId = organisationId;
     this.defaultLocation = defaultLocation;
   }
 
@@ -62,7 +61,8 @@ export class OperativeRowParser {
     if (location) {
       operative.location = location;
     } else if (this.defaultLocation) {
-      operative.location = this.defaultLocation;
+      operative.location_id = this.defaultLocation.id;
+      operative.location = this.defaultLocation.name;
     }
 
     const operativeType = this.getFieldValue(dataRow, 'operative_type')?.toString().trim();

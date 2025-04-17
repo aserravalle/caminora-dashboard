@@ -1,4 +1,4 @@
-import { CalendarDays, LayoutDashboard, Users, LogOut } from 'lucide-react';
+import { CalendarDays, LayoutDashboard, Users, LogOut, Clock, Building2, Briefcase } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
@@ -13,10 +13,30 @@ interface Profile {
   };
 }
 
-const navigation = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Operatives', href: '/operatives', icon: Users },
-  { name: 'Schedule', href: '/schedule', icon: CalendarDays },
+interface NavigationSection {
+  title: string;
+  items: {
+    name: string;
+    href: string;
+    icon: typeof LayoutDashboard;
+  }[];
+}
+
+const navigation: NavigationSection[] = [
+  {
+    title: "Operate",
+    items: [
+      { name: 'Quick Roster', href: '/quick-roster', icon: Clock },
+    ]
+  },
+  {
+    title: "Manage",
+    items: [
+      { name: 'Operatives', href: '/operatives', icon: Users },
+      { name: 'Clients', href: '/clients', icon: Building2 },
+      { name: 'Jobs', href: '/jobs', icon: Briefcase },
+    ]
+  }
 ];
 
 export function Sidebar() {
@@ -55,34 +75,39 @@ export function Sidebar() {
       </div>
       <nav className="flex flex-1 flex-col">
         <ul role="list" className="flex flex-1 flex-col gap-y-7">
-          <li>
-            <ul role="list" className="-mx-2 space-y-1">
-              {navigation.map((item) => (
-                <li key={item.name}>
-                  <Link
-                    to={item.href}
-                    className={cn(
-                      'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold',
-                      location.pathname === item.href
-                        ? 'bg-gray-50 text-blue-600'
-                        : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
-                    )}
-                  >
-                    <item.icon
+          {navigation.map((section) => (
+            <li key={section.title}>
+              <div className="text-xs font-semibold leading-6 text-gray-400 uppercase tracking-wider mb-2">
+                {section.title}
+              </div>
+              <ul role="list" className="-mx-2 space-y-1">
+                {section.items.map((item) => (
+                  <li key={item.name}>
+                    <Link
+                      to={item.href}
                       className={cn(
-                        'h-6 w-6 shrink-0',
+                        'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold',
                         location.pathname === item.href
-                          ? 'text-blue-600'
-                          : 'text-gray-400 group-hover:text-blue-600'
+                          ? 'bg-gray-50 text-blue-600'
+                          : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
                       )}
-                      aria-hidden="true"
-                    />
-                    {item.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </li>
+                    >
+                      <item.icon
+                        className={cn(
+                          'h-6 w-6 shrink-0',
+                          location.pathname === item.href
+                            ? 'text-blue-600'
+                            : 'text-gray-400 group-hover:text-blue-600'
+                        )}
+                        aria-hidden="true"
+                      />
+                      {item.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))}
           <li className="mt-auto space-y-2">
             <Link
               to="/profile"

@@ -1,20 +1,8 @@
 import { useState } from 'react';
-import { Input } from '../ui/input';
-import { LocationSelect } from '../ui/location-select';
-import { OperativeTypeSelect } from '../ui/operative-type-select';
 import { DaySelector } from '../ui/day-selector';
 import { TimeInput } from '../ui/time-input';
-
-interface FormErrors {
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  phone?: string;
-  defaultStartTime?: string;
-  defaultEndTime?: string;
-  location?: string;
-  operativeType?: string;
-}
+import { OperativeTypeSelect } from '../ui/operative-type-select';
+import { AddChildForm } from '../abstract/AddChildForm';
 
 interface AddOperativeFormProps {
   organisationId: string;
@@ -22,24 +10,49 @@ interface AddOperativeFormProps {
   disabled?: boolean;
 }
 
+const FIELDS = [
+  {
+    name: 'first_name',
+    label: 'First Name',
+    type: 'text',
+    required: true,
+    gridColumn: true,
+  },
+  {
+    name: 'last_name',
+    label: 'Last Name',
+    type: 'text',
+    gridColumn: true,
+  },
+  {
+    name: 'email',
+    label: 'Email',
+    type: 'email',
+  },
+  {
+    name: 'phone',
+    label: 'Phone',
+    type: 'tel',
+  },
+];
+
 export function AddOperativeForm({
   organisationId,
   onSubmit,
-  disabled
+  disabled,
 }: AddOperativeFormProps) {
-  const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [defaultDaysAvailable, setDefaultDaysAvailable] = useState('1111100'); // Mon-Fri by default
   const [defaultStartTime, setDefaultStartTime] = useState('09:00');
   const [defaultEndTime, setDefaultEndTime] = useState('17:00');
-  const [newLocation, setNewLocation] = useState<{ id: string; name: string } | null>(null);
   const [newOperativeType, setNewOperativeType] = useState<{ id: string; name: string } | null>(null);
 
-  const validateForm = (formData: FormData): FormErrors => {
-    const errors: FormErrors = {};
+  const validateForm = (formData: FormData) => {
+    const errors: Record<string, string> = {};
 
     // Required field validation
-    if (!formData.get('firstName')) {
-      errors.firstName = 'First name is required';
+    const firstName = formData.get('first_name') as string;
+    if (!firstName?.trim()) {
+      errors.first_name = 'First name is required';
     }
 
     // Email validation if provided
@@ -55,27 +68,22 @@ export function AddOperativeForm({
     }
 
     // Time validation
-    const startTime = defaultStartTime;
-    const endTime = defaultEndTime;
-    if (!startTime) {
+    if (!defaultStartTime) {
       errors.defaultStartTime = 'Start time is required';
     }
-    if (!endTime) {
+    if (!defaultEndTime) {
       errors.defaultEndTime = 'End time is required';
     }
-    if (startTime && endTime) {
-      const start = new Date(`2000-01-01T${startTime}`);
-      const end = new Date(`2000-01-01T${endTime}`);
+    if (defaultStartTime && defaultEndTime) {
+      const start = new Date(`2000-01-01T${defaultStartTime}`);
+      const end = new Date(`2000-01-01T${defaultEndTime}`);
       if (start >= end) {
         errors.defaultStartTime = 'Start time must be before end time';
         errors.defaultEndTime = 'End time must be after start time';
       }
     }
 
-    // Location and Operative Type validation
-    if (!newLocation?.id && !newLocation?.name) {
-      errors.location = 'Location is required';
-    }
+    // Operative Type validation
     if (!newOperativeType?.id && !newOperativeType?.name) {
       errors.operativeType = 'Operative type is required';
     }
@@ -83,67 +91,31 @@ export function AddOperativeForm({
     return errors;
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    
-    // Validate form
-    const validationErrors = validateForm(formData);
-    setFormErrors(validationErrors);
-    if (Object.keys(validationErrors).length > 0) {
-      return;
-    }
-
-    const operative = {
-      organisation_id: organisationId,
-      location_id: newLocation?.id,
-      operative_type_id: newOperativeType?.id,
-      first_name: formData.get('firstName') as string,
-      last_name: (formData.get('lastName') as string) || null,
-      email: (formData.get('email') as string) || null,
-      phone: (formData.get('phone') as string) || null,
-      default_start_time: defaultStartTime,
-      default_end_time: defaultEndTime,
-      default_days_available: defaultDaysAvailable,
-      // These will be created if they don't exist
-      location: newLocation?.name,
-      operative_type: newOperativeType?.name,
-    };
+  const handleSubmit = (data: any[]) => {
+    const operative = data[0];
+    operative.default_start_time = defaultStartTime;
+    operative.default_end_time = defaultEndTime;
+    operative.default_days_available = defaultDaysAvailable;
+    operative.operative_type_id = newOperativeType?.id;
+    operative.operative_type = newOperativeType?.name;
 
     onSubmit([operative]);
   };
 
   return (
-    <form id="add-operative-form" onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-2 gap-4">
-        <Input
-          label="First Name"
-          name="firstName"
-          type="text"
-          required
-          error={formErrors.firstName}
-        />
-
-        <Input
-          label="Last Name"
-          name="lastName"
-          type="text"
-          error={formErrors.lastName}
-        />
-      </div>
-
-      <Input
-        label="Email"
-        name="email"
-        type="email"
-        error={formErrors.email}
+    <div className="space-y-6">
+      <AddChildForm
+        organisationId={organisationId}
+        onSubmit={handleSubmit}
+        disabled={disabled}
+        fields={FIELDS}
+        validateForm={validateForm}
       />
 
-      <Input
-        label="Phone"
-        name="phone"
-        type="tel"
-        error={formErrors.phone}
+      <OperativeTypeSelect
+        value=""
+        organisationId={organisationId}
+        onChange={(id, name) => setNewOperativeType({ id, name })}
       />
 
       <DaySelector
@@ -158,7 +130,6 @@ export function AddOperativeForm({
           value={defaultStartTime}
           onChange={setDefaultStartTime}
           required
-          error={formErrors.defaultStartTime}
         />
 
         <TimeInput
@@ -167,23 +138,18 @@ export function AddOperativeForm({
           value={defaultEndTime}
           onChange={setDefaultEndTime}
           required
-          error={formErrors.defaultEndTime}
         />
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
       </div>
-
-      <LocationSelect
-        value=""
-        organisationId={organisationId}
-        onChange={(id, name) => setNewLocation({ id, name })}
-        error={formErrors.location}
-      />
-
-      <OperativeTypeSelect
-        value=""
-        organisationId={organisationId}
-        onChange={(id, name) => setNewOperativeType({ id, name })}
-        error={formErrors.operativeType}
-      />
-    </form>
+    </div>
   );
 }

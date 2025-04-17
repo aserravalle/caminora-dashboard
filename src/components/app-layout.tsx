@@ -7,8 +7,10 @@ export function AppLayout() {
       <div className="w-64 border-r border-gray-200">
         <Sidebar />
       </div>
-      <main className="flex-1 p-8">
-        <Outlet />
+      <main className="flex-1 overflow-y-auto">
+        <div className="p-8">
+          <Outlet />
+        </div>
       </main>
     </div>
   );
