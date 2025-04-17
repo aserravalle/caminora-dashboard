@@ -49,7 +49,6 @@ interface RosterResponse {
   jobs: Job[];
 }
 
-// Create a wrapper component for the column mappers
 const ColumnMapper: React.FC<{
   file: UploadedFile;
   onMappingSubmit: (mapping: Record<string, string>) => void;
@@ -85,6 +84,37 @@ export function QuickRosterPage() {
   const [processing, setProcessing] = useState(false);
   const [assigning, setAssigning] = useState(false);
   const [showColumnMapper, setShowColumnMapper] = useState(false);
+
+  const loadSampleData = async () => {
+    try {
+      const [jobsResponse, operativesResponse] = await Promise.all([
+        fetch('/jobs_florence.csv'),
+        fetch('/salesmen_florence.csv')
+      ]);
+
+      const [jobsCsv, operativesCsv] = await Promise.all([
+        jobsResponse.text(),
+        operativesResponse.text()
+      ]);
+
+      const jobsFile = new File([jobsCsv], 'jobs_florence.csv', { type: 'text/csv' });
+      const operativesFile = new File([operativesCsv], 'salesmen_florence.csv', { type: 'text/csv' });
+
+      const processedFiles = await Promise.all([
+        processFile(jobsFile),
+        processFile(operativesFile)
+      ]);
+
+      setFiles(processedFiles);
+      setCurrentFileIndex(0);
+      setParsedOperatives([]);
+      setParsedJobs([]);
+      setError(null);
+      setShowColumnMapper(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load sample data');
+    }
+  };
 
   // Get all mapped columns for operatives
   const getOperativeColumns = () => {
@@ -163,7 +193,6 @@ export function QuickRosterPage() {
         jobs: parsedJobs,
       };
 
-      // Log the request payload
       console.log('RosterRequest payload:', JSON.stringify(rosterRequest, null, 2));
 
       const response = await fetch('http://localhost:3000/roster', {
@@ -310,27 +339,47 @@ export function QuickRosterPage() {
                   Upload your Jobs and Operatives files - our system will automatically detect which is which
                 </p>
 
-                <div
-                  className="mt-4 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10"
-                  onDrop={handleDrop}
-                  onDragOver={handleDragOver}
-                >
-                  <div className="text-center">
-                    <Upload className="mx-auto h-12 w-12 text-gray-300" />
-                    <div className="mt-4 flex text-sm leading-6 text-gray-600">
-                      <label className="relative cursor-pointer rounded-md bg-white font-semibold text-blue-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-600 focus-within:ring-offset-2 hover:text-blue-500">
-                        <span>Upload files</span>
-                        <input
-                          type="file"
-                          multiple
-                          accept=".csv,.xlsx,.xls"
-                          className="sr-only"
-                          onChange={handleFileChange}
-                        />
-                      </label>
-                      <p className="pl-1">or drag and drop</p>
+                <div className="mt-4 flex flex-col gap-4">
+                  <button
+                    type="button"
+                    onClick={loadSampleData}
+                    className="flex items-center justify-center gap-2 w-full py-4 px-6 border-2 border-dashed border-blue-300 rounded-lg text-blue-600 hover:border-blue-400 hover:bg-blue-50 transition-colors"
+                  >
+                    <FileText className="h-5 w-5" />
+                    <span className="font-medium">Load Sample Data</span>
+                  </button>
+
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-gray-300" />
                     </div>
-                    <p className="text-xs leading-5 text-gray-600">CSV or Excel files</p>
+                    <div className="relative flex justify-center text-sm">
+                      <span className="px-2 bg-white text-gray-500">or</span>
+                    </div>
+                  </div>
+
+                  <div
+                    className="flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10"
+                    onDrop={handleDrop}
+                    onDragOver={handleDragOver}
+                  >
+                    <div className="text-center">
+                      <Upload className="mx-auto h-12 w-12 text-gray-300" />
+                      <div className="mt-4 flex text-sm leading-6 text-gray-600">
+                        <label className="relative cursor-pointer rounded-md bg-white font-semibold text-blue-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-600 focus-within:ring-offset-2 hover:text-blue-500">
+                          <span>Upload files</span>
+                          <input
+                            type="file"
+                            multiple
+                            accept=".csv,.xlsx,.xls"
+                            className="sr-only"
+                            onChange={handleFileChange}
+                          />
+                        </label>
+                        <p className="pl-1">or drag and drop</p>
+                      </div>
+                      <p className="text-xs leading-5 text-gray-600">CSV or Excel files</p>
+                    </div>
                   </div>
                 </div>
 
@@ -384,7 +433,6 @@ export function QuickRosterPage() {
           </div>
         </div>
 
-        {/* Processing Status Section */}
         <div className="col-span-1 bg-white rounded-lg shadow">
           <div className="p-6">
             <h2 className="text-lg font-medium text-gray-900">Ready to Process?</h2>
@@ -424,10 +472,8 @@ export function QuickRosterPage() {
         </div>
       </div>
 
-      {/* Data Preview Section */}
       {(parsedOperatives.length > 0 || parsedJobs.length > 0) && (
         <div className="space-y-8">
-          {/* Operatives Preview */}
           {parsedOperatives.length > 0 && (
             <div className="bg-white rounded-lg shadow overflow-hidden">
               <div className="px-4 py-5 sm:px-6">
@@ -474,7 +520,6 @@ export function QuickRosterPage() {
             </div>
           )}
 
-          {/* Jobs Preview */}
           {parsedJobs.length > 0 && (
             <div className="bg-white rounded-lg shadow overflow-hidden">
               <div className="px-4 py-5 sm:px-6">
