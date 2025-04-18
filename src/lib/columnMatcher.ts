@@ -108,7 +108,7 @@ export function findBestMatch(header: string, matches: ColumnMatch[]): string | 
   return null;
 }
 
-export function generateInitialMapping(headers: string[], dataType: 'operative' | 'job' | 'client'): Record<string, string> {
+export function generateInitialMapping(headers: string[], dataType: 'operative' | 'job'): Record<string, string> {
   const matches = dataType === 'operative' ? operativeMatches : jobMatches;
   const mapping: Record<string, string> = {};
   const usedFields = new Set<string>();

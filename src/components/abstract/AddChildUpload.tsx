@@ -27,6 +27,7 @@ export function AddChildUpload({
   const [csvText, setCsvText] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [headers, setHeaders] = useState<string[]>([]);
+  const [columnMapping, setColumnMapping] = useState<Record<string, string>>({});
   const [parsedData, setParsedData] = useState<any[]>([]);
   const [step, setStep] = useState<'upload' | 'map' | 'preview'>('upload');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -100,6 +101,7 @@ export function AddChildUpload({
   };
 
   const handleColumnMap = async (mapping: Record<string, string>) => {
+    setColumnMapping(mapping);
     try {
       let data: Record<string, any>[] = [];
       if (file) {

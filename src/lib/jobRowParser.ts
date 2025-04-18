@@ -17,9 +17,11 @@ export interface ParsedJob {
 
 export class JobRowParser {
   private columnMapping: ColumnMapping;
+  private organisationId: string;
 
-  constructor(columnMapping: ColumnMapping) {
+  constructor(columnMapping: ColumnMapping, organisationId: string) {
     this.columnMapping = columnMapping;
+    this.organisationId = organisationId;
   }
 
   public async parseRow(dataRow: Record<string, any>): Promise<ParsedJob> {

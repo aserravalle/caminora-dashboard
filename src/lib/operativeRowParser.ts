@@ -19,10 +19,16 @@ export interface ParsedOperative {
 
 export class OperativeRowParser {
   private columnMapping: ColumnMapping;
+  private organisationId: string;
   private defaultLocation?: { id: string; name: string };
 
-  constructor(columnMapping: ColumnMapping, defaultLocation?: { id: string; name: string }) {
+  constructor(
+    columnMapping: ColumnMapping,
+    organisationId: string,
+    defaultLocation?: { id: string; name: string }
+  ) {
     this.columnMapping = columnMapping;
+    this.organisationId = organisationId;
     this.defaultLocation = defaultLocation;
   }
 

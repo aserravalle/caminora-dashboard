@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { Check, ChevronsUpDown, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { generateInitialMapping } from '@/lib/columnMatcher';
 
@@ -20,7 +20,7 @@ interface AbstractColumnMapperProps {
   onNext: () => void;
   isLastFile?: boolean;
   className?: string;
-  dataType: 'operative' | 'job' | 'client';
+  dataType: 'operative' | 'job';
 }
 
 export function AbstractColumnMapper({

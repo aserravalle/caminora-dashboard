@@ -18,7 +18,7 @@ export function ClientColumnMapper(props: ClientColumnMapperProps) {
     <AbstractColumnMapper
       {...props}
       expectedFields={EXPECTED_FIELDS}
-      dataType="client"
+      dataType="operative"
     />
   );
 }

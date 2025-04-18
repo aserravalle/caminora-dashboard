@@ -11,10 +11,12 @@ export interface ParsedClient {
 
 export class ClientRowParser {
   private columnMapping: ColumnMapping;
+  private organisationId: string;
   private defaultLocation?: string;
 
-  constructor(columnMapping: ColumnMapping, defaultLocation?: string) {
+  constructor(columnMapping: ColumnMapping, organisationId: string, defaultLocation?: string) {
     this.columnMapping = columnMapping;
+    this.organisationId = organisationId;
     this.defaultLocation = defaultLocation;
   }
 

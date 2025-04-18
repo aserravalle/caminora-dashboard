@@ -1,4 +1,11 @@
-const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT || "http://localhost:8000";
+import { transformRequest, transformResponse } from '@/lib/apiTransformer';
+
+const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT_PRODUCTION || "https://travelling-salesman-backend-production.up.railway.app/assign_jobs";
+
+export interface RosterRequest {
+  jobs: Job[];
+  operatives: Operative[];
+}
 
 export interface RosterResponse {
   jobs: Job[];
@@ -13,37 +20,50 @@ interface Job {
   operative_type?: string;
   location: {
     name: string;
-    latitude: number;
-    longitude: number;
-    address: string;
+    latitude?: number;
+    longitude?: number;
+    address?: string;
   };
   client?: string;
   operative_name?: string;
   start_time?: string;
 }
 
-export const generateRoster = async (rosterRequest: any): Promise<RosterResponse> => {
+interface Operative {
+  id?: string;
+  first_name: string;
+  last_name?: string;
+  location?: string;
+  default_start_time?: string;
+  default_end_time?: string;
+}
+
+export const generateRoster = async (rosterRequest: RosterRequest): Promise<RosterResponse> => {
   try {
-    console.log('API endpoint:', API_ENDPOINT);
-    const response = await fetch(`${API_ENDPOINT}/generate_roster`, {
+    // Transform the request to legacy format
+    const legacyRequest = transformRequest(rosterRequest);
+
+    // Make the API call
+    const response = await fetch(API_ENDPOINT, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(rosterRequest),
+      body: JSON.stringify(legacyRequest),
     });
     
     if (!response.ok) {
       const errorText = await response.text();
-      console.log('API Error:', errorText);
+      console.error('API Error:', errorText);
       throw new Error(`API request failed: ${response.status} ${response.statusText}`);
     }
     
-    const result = await response.json();
-    return result;
+    // Transform the response back to our format
+    const legacyResponse = await response.json();
+    return transformResponse(legacyResponse);
   } 
   catch (error) {
-    console.log('Error generating roster:', error);
+    console.error('Error generating roster:', error);
     return mockRosterResponse();
   }
 };
