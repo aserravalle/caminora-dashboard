@@ -9,7 +9,9 @@ interface AddChildUploadProps {
   disabled?: boolean;
   ColumnMapper: React.ComponentType<{
     headers: string[];
-    onSubmit: (mapping: Record<string, string>) => void;
+    onMappingSubmit: (mapping: Record<string, string>) => void;
+    onNext: () => void;
+    isLastFile?: boolean;
   }>;
   rowParser: any;
 }
@@ -25,7 +27,6 @@ export function AddChildUpload({
   const [csvText, setCsvText] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [headers, setHeaders] = useState<string[]>([]);
-  const [columnMapping, setColumnMapping] = useState<Record<string, string>>({});
   const [parsedData, setParsedData] = useState<any[]>([]);
   const [step, setStep] = useState<'upload' | 'map' | 'preview'>('upload');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -99,7 +100,6 @@ export function AddChildUpload({
   };
 
   const handleColumnMap = async (mapping: Record<string, string>) => {
-    setColumnMapping(mapping);
     try {
       let data: Record<string, any>[] = [];
       if (file) {
@@ -201,7 +201,8 @@ export function AddChildUpload({
           
           <ColumnMapper
             headers={headers}
-            onSubmit={handleColumnMap}
+            onMappingSubmit={handleColumnMap}
+            onNext={() => setStep('preview')}
           />
         </div>
       )}
@@ -258,6 +259,12 @@ export function AddChildUpload({
             className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
             Back to column mapping
+          </button>
+          <button
+            type="submit"
+            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          >
+            Add Data
           </button>
         </div>
       )}

@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { Upload, ArrowLeft, FileText } from 'lucide-react';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
-import { OperativeRowParser, type ParsedOperative } from '@/lib/operativeRowParser';
+import { OperativeRowParser } from '@/lib/operativeRowParser';
 import { JobRowParser } from '@/lib/jobRowParser';
 import { JobColumnMapper, OperativeColumnMapper } from '@/components/ui/column-mapper';
+// import { generateRoster } from '@/services/api';
 
 interface UploadedFile {
   file: File;
@@ -81,7 +82,6 @@ export function QuickRosterPage() {
   const [parsedOperatives, setParsedOperatives] = useState<Operative[]>([]);
   const [parsedJobs, setParsedJobs] = useState<Job[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [processing, setProcessing] = useState(false);
   const [assigning, setAssigning] = useState(false);
   const [showColumnMapper, setShowColumnMapper] = useState(false);
 
@@ -136,7 +136,6 @@ export function QuickRosterPage() {
   };
 
   const parseData = async () => {
-    setProcessing(true);
     setError(null);
 
     try {
@@ -145,7 +144,7 @@ export function QuickRosterPage() {
 
       for (const file of files) {
         if (file.dataType === 'operative') {
-          const parser = new OperativeRowParser(file.columnMapping, 'temp-org-id');
+          const parser = new OperativeRowParser(file.columnMapping);
           for (const row of file.data) {
             try {
               const operative = await parser.parseRow(row);
@@ -155,7 +154,7 @@ export function QuickRosterPage() {
             }
           }
         } else {
-          const parser = new JobRowParser(file.columnMapping, 'temp-org-id');
+          const parser = new JobRowParser(file.columnMapping);
           for (const row of file.data) {
             try {
               const job = await parser.parseRow(row);
@@ -171,8 +170,6 @@ export function QuickRosterPage() {
       setParsedJobs(newJobs);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to process files');
-    } finally {
-      setProcessing(false);
     }
   };
 
@@ -193,7 +190,9 @@ export function QuickRosterPage() {
 
       console.log('RosterRequest payload:', JSON.stringify(rosterRequest, null, 2));
 
-      const response = await fetch('http://localhost:3000/roster', {
+      // const response = await generateRoster(rosterRequest);
+
+      const response = await fetch('http://127.0.0.1:8000/generate_roster', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

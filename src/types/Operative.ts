@@ -1,9 +1,14 @@
+import { Location } from "./Location";
 
 export interface Operative {
-    operative_id: string;
-    location: Location;
-    start_time: string;
-    end_time: string;
+  id?: string;
+
+  first_name: string;
   
-    salesman_name?: string;
-  }
+  location?: Location;
+  
+  operative_type?: string;
+  default_start_time?: string;
+  default_end_time?: string;
+  default_days_available?: string;
+}

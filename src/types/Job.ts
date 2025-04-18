@@ -1,12 +1,19 @@
+import { Location } from "./Location";
+
 
 export interface Job {
-    job_id: string;
-    date: string;
-    location: Location;
-    duration_mins: number;
-    entry_time: string;
-    exit_time: string;
-  
-    client_name?: string;
-    description?: string;
-  }
+  // Job data
+  id?: string;
+  entry_time: string;
+  exit_time: string;
+  duration_min: number;
+  operative_type?: string;
+  location?: Location;
+
+  // Client Data
+  client?: string;
+
+  // Operative Data
+  operative_name?: string | null;
+  start_time?: string | null;
+}

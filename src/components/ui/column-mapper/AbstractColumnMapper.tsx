@@ -13,11 +13,12 @@ export interface ExpectedField {
   required?: boolean;
 }
 
-interface AbstractColumnMapperProps {
+export interface AbstractColumnMapperProps {
   headers: string[];
   expectedFields: ExpectedField[];
   onMappingSubmit: (mapping: ColumnMapping) => void;
   onNext: () => void;
+  isLastFile?: boolean;
   className?: string;
   dataType: 'operative' | 'job' | 'client';
 }
@@ -27,6 +28,7 @@ export function AbstractColumnMapper({
   expectedFields,
   onMappingSubmit,
   onNext,
+  isLastFile = true,
   className,
   dataType
 }: AbstractColumnMapperProps) {
@@ -151,7 +153,7 @@ export function AbstractColumnMapper({
           onClick={handleSubmit}
           className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
         >
-          Submit Mapping
+          {isLastFile ? 'Submit Mapping' : 'Next File'}
         </button>
       </div>
     </div>
