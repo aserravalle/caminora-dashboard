@@ -271,6 +271,18 @@ export function AddJobForm({
           )}
         </div>
       </CollapsibleSection>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
     </form>
   );
 }

@@ -13,7 +13,7 @@ export interface ExpectedField {
   required?: boolean;
 }
 
-export interface AbstractColumnMapperProps {
+interface AbstractColumnMapperProps {
   headers: string[];
   expectedFields: ExpectedField[];
   onMappingSubmit: (mapping: ColumnMapping) => void;
